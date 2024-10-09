@@ -137,3 +137,38 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ### Install CNI
 Install a CNI like calico: https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart#install-calico
 
+### Adding Control Plane and Worker Nodes
+```
+# Getting Join Command
+kubeadm token create --print-join-command
+
+# Re-Uploading certs
+sudo kubeadm init phase upload-certs --upload-certs
+```
+
+# Other Master Nodes
+
+### Join to cluster
+```
+sudo kubeadm join \
+wltest3344.westus2.cloudapp.azure.com:6443 --token \
+f0f791.ncx9423up5gy9hb3 --control-plane --certificate-key \
+3c5794a659b6712a0c89329094a13e3de42437a393fa383ee9ad54ea410c554d \
+--discovery-token-unsafe-skip-ca-verification
+```
+
+### Make Kubeconfig readable
+```
+mkdir -p $HOME/kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+# Worker Nodes
+
+### Join to cluster
+```
+sudo kubeadm join wltest3344.westus2.cloudapp.azure.com:6443 --token \
+f0f791.ncx9423up5gy9hb3 --discovery-token-ca-cert-hash \
+sha256:c351bcd2c8433845c696e180a955ed2f9b744f6a312f65
+```
