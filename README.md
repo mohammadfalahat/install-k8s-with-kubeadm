@@ -94,3 +94,46 @@ sudo systemctl restart containerd
 ### Install kubeadm, kubelet and kubectl:
 Follow this documentation: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm
 
+
+### if you want to install specific version 
+```
+# finding version
+apt-cache madison kubeadm | tac
+
+# Current, the exam is at v1.26, so we will use the latest of
+# the 1.26 versions
+
+# For a specific version:
+sudo apt-get install -y kubelet=1.26.5-00 \
+kubectl=1.26.5-00 kubeadm=1.26.5-00
+
+# then hold these packages to prevent upgrades
+sudo apt-mark hold kubelet kubeadm kubectl
+```
+
+# Master Node 1
+```
+#Set Master Node CIDR
+builder@builder-T100:~$ IPADDR="192.168.1.99"
+builder@builder-T100:~$ NODENAME=$(hostname -s)
+builder@builder-T100:~$ POD_CIDR="10.10.0.0/16"
+```
+### Init Kubeadm
+```
+$ sudo kubeadm init \
+--apiserver-advertise-address=$IPADDR \
+--apiserver-cert-extra-sans=$IPADDR \
+--pod-network-cidr=$POD_CIDR --node-name \
+$NODENAME --ignore-preflight-errors Swap
+```
+
+### Make Kubeconfig readable
+```
+mkdir -p $HOME/kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+### Install CNI
+Install a CNI like calico: https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart#install-calico
+
